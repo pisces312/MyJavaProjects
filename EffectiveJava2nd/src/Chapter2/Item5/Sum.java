@@ -1,0 +1,23 @@
+package Chapter2.Item5;
+
+public class Sum {
+    // Hideously slow program! Can you spot the object creation?
+    public static void lowSum(){
+        Long sum = 0L;
+        for (long i = 0; i < Integer.MAX_VALUE; i++) {
+            sum += i;
+        }
+        System.out.println(sum);
+        
+    }
+    public static void highSum(){
+        long sum = 0L;
+        for (long i = 0; i < Integer.MAX_VALUE; i++) {
+            sum += i;
+        }
+        System.out.println(sum);
+    }
+    public static void main(String[] args) {
+        
+    }
+}

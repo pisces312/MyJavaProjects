@@ -1,0 +1,97 @@
+FFT takes N sample points and returns N/2 frequency lines
+
+Some higher-frequency lines are lost because of the anti-aliasing filter
+
+Highest frequency controlled by "sampling rate"
+Lowest frequency controlled by "block size"
+
+Highest frequency Fa=Fs/2 (Nyquist theorem)
+
+Lowest frequency=1/T (block fundamental frequency)
+
+Lines evenly spaced between. Spacing=1/T
+
+Sampling rate is time resolution, block length is time range
+
+Range in one domain <-> Resolution in other domain
+
+
+
+Spectrum Type and Scaling 
+• FFT returns complex-valued amplitudes 
+•  Real part represents cosine components, 
+imaginary part represents sine components 
+(90° phase difference) 
+• Can be converted to magnitude and phase 
+• Squared magnitude represents signal power
+
+
+• Spectrum Types: 
+– Magnitude: Amplitude Spectrum 
+– Squared magnitude: Power Spectrum 
+– Squared magnitude per unit bandwidth: Power Spectral Density 
+– Squared magnitude × block time length: Energy Spectrum 
+– Squared magnitude × block length per unit bandwidth: Energy Spectral Density 
+• Periodic signals (discrete frequencies): 
+Amplitude or Power Spectrum 
+• Broadband random signals: Power Spectral 
+Density 
+• Transient Signals: Energy Spectral Density 
+
+Magnitude is peak value
+
+
+The FFT algorithm applies only to signals comprising a number of elements which 
+is equal to 2m (e.g. 28
+ = 256, 210
+=1024 etc.)
+
+
+The FFT result size is (FFT Input Buffer Size)/2 and the data passed in FFT function is data buffer size, 
+so the FFT result is: FFTIndex*(dataBufferSize/FFTInputBufferSize),
+e.g.
+data buffer size:44100
+FFT Input Buffer Size:32768, the max 2^N smaller than 44100
+so the ratio is 44100/32768=1.34
+
+
+The buffer size must no larger than frameSize*sampleRate, 
+e.g.
+frameSize=4bytes
+sampleRate=8000
+bufferSize<=32000 
+
+
+To get the real frequency we need to double the fft idx!!
+
+
+Ö¡´óÐ¡£¨Frame Size£©ÊÇÖ¸Ã¿¸öÉùµÀµÄ²ÉÑùÊýÁ¿¡£±àÂëÆ÷Ê×ÏÈÓÉÔ¤ÉèÖµµÄÖ¡³ÖÐøÊ±¼ä¼ÆËã³öÖ¡´óÐ¡£¬È»ºóÄÃ½á¹ûµÄ²ÉÑùÊýÓëÖ¡´óÐ¡ÏÞ¶¨µÄÖµ×÷±È½Ï¡£
+?Êý¾ÝÔÚÂß¼­ÉÏ´æ´¢µÄÊÇÊ²Ã´Öµ
+2 channel
+each channel is 16 bits
+So frame size is 4 bytes(16 bits*2=32bit)
+
+
+Format Chunk
+    ====================================================================
+    |               | ËùÕ¼×Ö½ÚÊý  |              ¾ßÌåÄÚÈÝ                |
+    ====================================================================
+    | ID            |  4 Bytes  |   'fmt '                             |
+    --------------------------------------------------------------------
+    | Size          |  4 Bytes  | ÊýÖµÎª16»ò18£¬18Ôò×îºóÓÖ¸½¼ÓÐÅÏ¢     |
+    --------------------------------------------------------------------  ----
+    | FormatTag     |  2 Bytes  | ±àÂë·½Ê½£¬Ò»°ãÎª0x0001               |     |
+    --------------------------------------------------------------------     |
+    | Channels      |  2 Bytes  | ÉùµÀÊýÄ¿£¬1--µ¥ÉùµÀ£»2--Ë«ÉùµÀ       |     |
+    --------------------------------------------------------------------     |
+    | SamplesPerSec |  4 Bytes  | ²ÉÑùÆµÂÊ                             |     |
+    --------------------------------------------------------------------     |
+    | AvgBytesPerSec|  4 Bytes  | Ã¿ÃëËùÐè×Ö½ÚÊý                       |     |===> WAVE_FORMAT
+    --------------------------------------------------------------------     |
+    | BlockAlign    |  2 Bytes  | Êý¾Ý¿é¶ÔÆëµ¥Î»(Ã¿¸ö²ÉÑùÐèÒªµÄ×Ö½ÚÊý) |     |
+    --------------------------------------------------------------------     |
+    | BitsPerSample |  2 Bytes  | Ã¿¸ö²ÉÑùÐèÒªµÄbitÊý                  |     |
+    --------------------------------------------------------------------     |
+    |               |  2 Bytes  | ¸½¼ÓÐÅÏ¢£¨¿ÉÑ¡£¬Í¨¹ýSizeÀ´ÅÐ¶ÏÓÐÎÞ£© |     |
+    --------------------------------------------------------------------  ----
+

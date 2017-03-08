@@ -1,0 +1,23 @@
+# Compiled class file
+*.class
+
+# Log file
+*.log
+
+# Package Files #
+*.jar
+*.war
+*.ear
+*.zip
+*.tar.gz
+*.rar
+
+# Misc Files
+*.tmp
+*.bak
+*.swp
+
+# Folders
+bin/**
+tmp/**
+target/**

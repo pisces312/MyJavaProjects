@@ -1,0 +1,276 @@
+     private void calcSpectrum(float [] wFFT, float [] saBands) {
+
+        int saMultiplier = (sampleSize >> 1) / saBands.length;
+
+        for (int a = 0, bd = 0; bd < saBands.length; a += saMultiplier, bd++) {
+
+            //height in GUI for each band
+            //            float wFs = 0;
+            saBands[bd] = 0;
+
+            // -- Average out nearest bands.
+            for (int b = 0; b < saMultiplier; b++) {
+                //each band begin with a+offset and  end with a+offset+saMultiplier
+                //calc sum
+                saBands[bd] += wFFT[a + b];
+            }
+
+            //TODO -- Log filter.
+            saBands[bd] = (saBands[bd] * (float)Math.log(bd + 2));
+
+            //max is 1.0
+            if (saBands[bd] > 1.0f) {
+                saBands[bd] = 1.0f;
+            }
+        }
+
+    }
+ 
+ 
+    private void processCombinedSampleData() {
+        int c = 0;
+
+        if (channelMode == CHANNEL_MODE_MONO && sampleType == SAMPLE_TYPE_EIGHT_BIT) {
+
+            for (int a = 0; a < sampleSize; a++) {
+                combined[a] = audioDataBuffer[a];
+            }
+
+        } else if (channelMode == CHANNEL_MODE_STEREO && sampleType == SAMPLE_TYPE_EIGHT_BIT) {
+
+            for (int a = 0; a < sampleSize; a++) {
+                c = a << 1;
+                combined[a] = (float)((((int)audioDataBuffer[c]) >> 1) + (((int)audioDataBuffer[c + 1]) >> 1));
+                //                combined[a] = (float)(((int)audioDataBuffer[c] + (int)audioDataBuffer[c + 1]) >> 1);
+            }
+
+        } else if (channelMode == CHANNEL_MODE_MONO && sampleType == SAMPLE_TYPE_SIXTEEN_BIT) {
+
+            for (int a = 0; c < sampleSize; a++, c += 2) {
+                combined[a] = (float)((((int)audioDataBuffer[c + 1]) << 8) + audioDataBuffer[c]);
+            }
+
+        } else if (channelMode == CHANNEL_MODE_STEREO && sampleType == SAMPLE_TYPE_SIXTEEN_BIT) {
+
+            for (int a = 0; a < sampleSize; a++) {
+                //two bytes for one channel,32767 is the max value of 16bit format
+                c = a << 2;
+                combined[a] = (((((int)audioDataBuffer[c + 1]) << 8) | (((int)audioDataBuffer[c]) & 0xff))
+                        + (((int)audioDataBuffer[c + 3]) << 8) | (((int)audioDataBuffer[c + 2]) & 0xff)) >> 1;
+            }
+            //            System.out.println();
+
+        }
+
+    }
+
+
+
+
+ frame.addWindowListener(new WindowListener() {
+
+            @Override
+            public void windowActivated(WindowEvent arg0) {
+//                System.out.println("windowActivated");
+//                canvas.flush();
+                //                frame.invalidate();
+            }
+
+            @Override
+            public void windowClosed(WindowEvent arg0) {
+//                System.out.println("windowClosed");
+
+            }
+
+            @Override
+            public void windowClosing(WindowEvent arg0) {
+//                System.out.println("windowClosing");
+            }
+
+            @Override
+            public void windowDeactivated(WindowEvent arg0) {
+//                System.out.println("windowDeactivated");
+
+            }
+
+            @Override
+            public void windowDeiconified(WindowEvent arg0) {
+//                System.out.println("windowDeiconified");
+
+            }
+
+            @Override
+            public void windowIconified(WindowEvent arg0) {
+//                System.out.println("windowIconified");
+
+            }
+
+            @Override
+            public void windowOpened(WindowEvent arg0) {
+//                System.out.println("windowOpened");
+
+            }
+        });
+
+
+                    //TODO
+                    //                    float maxF = 0;
+                    //                    float maxF2 = 0;
+                    //                    int idx = 0;
+                    //                    int idx2 = 0;
+                    //                    for (int i = 0; i < fftResults.length; i++) {
+                    //                        if (fftResults[i] > maxF) {
+                    //                            maxF2 = maxF;
+                    //                            maxF = fftResults[i];
+                    //                            idx2 = idx;
+                    //                            idx = i;
+                    //                        }
+                    //                    }
+                    //                    System.out.println(fftResults.length);
+                    //                    System.out.println("max freq:" + idx + "," + idx2);
+
+                    //                    Arrays.sort(fftResults);
+                    //                    System.out.println(Arrays.toString(fftResults));
+                    //                    System.out.println("max value:" + maxF + "," + maxF2);
+
+
+        //        System.out.println(Arrays.toString(xArray));
+        //
+        //        int dw = timeLineArea.width >> 2;
+        //        float dt = timeRange / 4;
+        //        float start = timeRangeStart;
+        //
+        //        int y1 = h >> 1;
+        //
+        //        for (int i = timeLineArea.x; i <= mx; i += dw, start += dt) {
+        //            System.out.println(i);
+        //            graphics.drawString(String.valueOf(start), i, h);
+        //
+        //        }
+
+        //not accurate
+        //        int dw = timeLineArea.width >> 2;
+        //        float dt = timeRange / 4;
+        //        float start = timeRangeStart;
+        //        graphics.setColor(Color.BLACK);
+        //        int h = timeLineArea.y + timeLineArea.height;
+        //        int y1 = h >> 1;
+        //        int mx = timeLineArea.width + timeLineArea.x;
+        //        for (int i = timeLineArea.x; i <= mx; i += dw, start += dt) {
+        //            System.out.println(i);
+        //            graphics.drawString(String.valueOf(start), i, h);
+        //            graphics.drawLine(i, h, i, y1);
+        //        }
+        //
+        //        graphics.drawLine(timeLineArea.x, h, mx,
+        //                h);
+
+        //        float dt = timeRange / 4;
+        //        float start = timeRangeStart;
+        //        graphics.setColor(Color.BLACK);
+        //        int h = timeLineArea.y + timeLineArea.height;
+        //        int y1 = h >> 1;
+        //        for (int i = 0; i < 5; ++i, start += dt) {
+        //            int x = getXFromTime(start);
+        //            graphics.drawString(String.valueOf(start), x, h);
+        //            graphics.drawLine(x, h, x, y1);
+        //        }
+        //
+        //        graphics.drawLine(timeLineArea.x, h, timeLineArea.x + timeLineArea.width,
+        //                h);
+
+
+ //                            System.out.println("--Time:" + sourceDataLine.getMicrosecondPosition() / 1000000.0);
+                //play sound
+                //                int outBytes = sourceDataLine.write(audioDataBuffer, 0, inBytes);
+                //                System.out.println(Arrays.toString(audioDataBuffer));
+                //TODO what does it mean?
+                processSamplesPercentage(inBytes);
+                float [] fftResults = fft.calculate(leftFreqPercentage);
+                //                if (inBytes == sampleSize) {
+                //                    fftResults = fft.calculate(left);
+                //                } else  {
+                //                    KJFFT fft2 = new KJFFT(inBytes);
+                //                    fftResults = fft2.calculate(left, inBytes);
+                //                }
+                if (fftResults != null) {
+                    //                    System.out.println("left:" + Arrays.toString(fftResults));
+                    //                    System.out.println("right:" + Arrays.toString(fftResults));
+                    calcSpectrum(fftResults, saBands);
+                    System.out.println("result:" + Arrays.toString(saBands));
+                    //                    System.out.println();
+                }
+
+
+
+
+        //        DataLine.Info info = new DataLine.Info(SourceDataLine.class,
+        //                audioFormat); // format is an AudioFormat object
+        //        if (!AudioSystem.isLineSupported(info)) {
+        //            // Handle the error.
+        //        }
+        //        // Obtain and open the line.
+        //        try {
+        //            SourceDataLine line = (SourceDataLine)AudioSystem.getLine(info);
+        //            line.open(audioFormat);
+        //            return line;
+        //        } catch (LineUnavailableException ex) {
+        //            // Handle the error.
+        //            //...
+        //        }
+        //        return null;
+
+        //                    System.out.println(line.getLineInfo());
+        //                    System.out.println(line.getFormat());
+        //                    System.out.println(line.getLevel());
+        //                    System.out.println(line.getBufferSize());
+        //
+        //
+        //
+        //                    sa.
+        //
+        //play
+        //                    line.start();
+        //                    //
+        //                    //
+        //                    //
+        //                    //
+        //                    boolean stopped = false;
+        //                    boolean threadExit = false;
+        //                    boolean paused = false;
+        //                    //                    byte [] audioData = new byte[bufferSize];
+        //                    int inBytes = 0;
+        //                    int total = 0;
+        //                    while ((inBytes != -1) && (!stopped) && (!threadExit)) {
+        //                        try {
+        //                            inBytes = ais.read(audioDataBuffer, 0, bufferSize);
+        //                            //                            System.out.println("inBytes:" + inBytes);
+        //                        } catch (IOException e) {
+        //                            e.printStackTrace();
+        //                        }
+        //                        if (inBytes >= 0) {
+        //                            
+        //                            int outBytes = line.write(audioDataBuffer, 0, inBytes);
+        //                            
+        //                            //TODO
+        //                            sa.process(left);
+        //                            System.out.println("process");
+        //                            //                            sa.invalidate();
+        //                            //                            frame.invalidate();
+        //                            //                            frame.repaint();
+        //                            total += outBytes;
+        //                        }
+        //                        //            if (paused) waitforSignal();
+        //                    }
+        //                    //
+        //
+        //                    System.out.println("total:" + total);
+        //                    System.out.println(line.getFramePosition());
+        //                    System.out.println(line.getLongFramePosition());
+        //                    System.out.println(line.getMicrosecondPosition());
+        //                    System.out.println(line.available());
+        //                    //this is the final invocation of write
+        //                    line.drain();
+        //                    line.stop();
+        //                    line.close();
+        //                    line = null;
