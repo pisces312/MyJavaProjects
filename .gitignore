@@ -20,4 +20,4 @@
 # Folders
 bin/**
 tmp/**
-target/**
+*/target/*
