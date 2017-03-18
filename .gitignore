@@ -18,6 +18,5 @@
 *.swp
 
 # Folders
-bin/**
-tmp/**
+*/bin/*
 */target/*
