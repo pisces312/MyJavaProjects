@@ -6,18 +6,9 @@ package CreationalPatterns.FactoryMethod.Creator;
 
 import CreationalPatterns.FactoryMethod.Product.Operation;
 
-/**
- *只是一个接口
- * @author pisces312
- */
+//Only support one kind of production
 public interface OperationFactory {
 
-    /**
-     * 普通公有方法，无参数
-     * 无选择语句
-     * 只有一个“产品”
-     * @param opr
-     * @return
-     */
+	//A public method to create one instance
     public Operation createOperation();
 }
