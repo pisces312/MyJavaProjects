@@ -7,14 +7,12 @@ import org.springframework.boot.context.embedded.EmbeddedServletContainerFactory
 import org.springframework.boot.context.embedded.tomcat.TomcatConnectorCustomizer;
 import org.springframework.boot.context.embedded.tomcat.TomcatEmbeddedServletContainerFactory;
 import org.springframework.context.annotation.Bean;
-import org.springframework.scheduling.annotation.EnableAsync;
 /**
  * Customize web container
  * @author nil4
  *
  */
 @SpringBootApplication
-@EnableAsync
 public class CustomWebApp {
 
     public static void main(String[] args) {
