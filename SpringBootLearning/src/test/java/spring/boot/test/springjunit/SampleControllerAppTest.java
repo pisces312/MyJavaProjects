@@ -25,10 +25,10 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import spring.boot.common.SetParam;
-import spring.boot.singlewebapp.SingleAppWithController;
+import spring.boot.learn.env.launch.SingleControllerApp;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(SingleAppWithController.class)
+@SpringApplicationConfiguration(SingleControllerApp.class)
 // @SpringApplicationConfiguration(classes={spring.boot.SpringBootSampleControllerTest.class} )
 // @SpringApplicationConfiguration(classes={MockServletContext.class,SpringBootSampleControllerTest.class}
 // )
@@ -39,7 +39,7 @@ public class SampleControllerAppTest {
     private MockMvc mvc;
 
     @Autowired
-    SingleAppWithController controller;
+    SingleControllerApp controller;
 
     @Before
     public void setUp() {

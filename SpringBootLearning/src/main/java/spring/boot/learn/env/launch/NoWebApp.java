@@ -1,4 +1,4 @@
-package spring.boot.nowebapp;
+package spring.boot.learn.env.launch;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

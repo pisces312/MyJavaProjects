@@ -18,7 +18,7 @@ import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
-import spring.boot.singlewebapp.SingleAppWithController;
+import spring.boot.learn.env.launch.SingleControllerApp;
 
 @RunWith(PowerMockRunner.class)
 // @PrepareForTest(SpringBootSampleController.class)
@@ -27,7 +27,7 @@ public class RestServerMockmvcPowerMockTest {
 
 
     @InjectMocks
-    SingleAppWithController controller;
+    SingleControllerApp controller;
 
 
     @Before
