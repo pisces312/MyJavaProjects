@@ -1,0 +1,198 @@
+
+
+
+Two calling conventions:
+	ABI64: How we call functions in 64bits (using registers - rdi, rsi, rdx, rcx, r8, r9)
+	Syscall: how we call functions when they are in kernel mode
+		LOAD sys call #into eax
+		when syscall, user mode ->kernel mode
+		(cannot access kernel space from user space directly -> segment fault
+		must use syscall to access)
+
+when enter into kernel mode
+syscal
+=
+jmp <syscall_entry_point>
++
+change user mode -> kernel mode
+(arch spec, on intel:EFLAGS)
+		
+
+#Check syscall macro definition
+/usr/include/bits/syscall.h
+	#define SYS_ioctl __NR_ioctl
+
+#Check opr
+grep __NR_ioctl /usr/include/asm/* 2>/dev/null
+	asm/unistd_64.h:#define __NR_ioctl 16
+
+
+
+
+objdump -d /lib64/libc-2.17.so | more
+# $0x10 is opr for ioctl
+00000000000ee500 <ioctl>:
+   ee500:	b8 10 00 00 00       	mov    $0x10,%eax
+   ee505:	0f 05                	syscall 
+   ee507:	48 3d 01 f0 ff ff    	cmp    $0xfffffffffffff001,%rax
+   ee50d:	73 01                	jae    ee510 <ioctl+0x10>
+#successfully returned
+   ee50f:	c3                   	retq   
+   ee510:	48 8b 0d 51 b9 2c 00 	mov    0x2cb951(%rip),%rcx        # 3b9e68 <_DYNAMIC+0x2e8>
+   ee517:	f7 d8                	neg    %eax
+#set errno
+   ee519:	64 89 01             	mov    %eax,%fs:(%rcx)
+#return value if error is always -1
+   ee51c:	48 83 c8 ff          	or     $0xffffffffffffffff,%rax
+   ee520:	c3                   	retq   
+   ee521:	66 2e 0f 1f 84 00 00 	nopw   %cs:0x0(%rax,%rax,1)
+   ee528:	00 00 00 
+   ee52b:	0f 1f 44 00 00       	nopl   0x0(%rax,%rax,1)
+
+
+
+
+
+https://kernelnewbies.org/
+http://www.linuxnewbies.org/
+
+https://www.kernel.org/
+
+
+/proc/cpuinfo
+physical->processors
+core id->
+
+
+?which is better, can be different combinations
+cores= process*core*ht
+
+
+
+SMP
+	HT: default is 2, only ALU (linux>=3.2 support HT)
+	optimal for two threads of the same process either on ALU or using different micoarchitecture components
+	
+	MC (multi core): not include L2,L3 and so on
+	two threads of same process but can basically do anything can also work for unrelated thread (of diff. processes) assuming no L3 cache contention.
+	
+	MP (multi process): everything contains L2,L3
+
+
+
+
+cat /proc/modules
+
+
+
+
+
+kernel memory
+/proc/kallsyms
+#local cpu cache
+0000000000016ec0 d per_cpu__runqueues
+0000000000017900 d per_cpu__osq_node
+0000000000017940 d per_cpu__sched_clock_data
+0000000000017958 D __per_cpu_end
+#kernel
+ffffffff81000000 T startup_64
+ffffffff81000000 T _text
+ffffffff810000b7 t ident_complete
+ffffffff81000100 T secondary_startup_64
+
+#module (at the end)
+ffffffffa0000470 t dm_get_reserved_bio_based_ios	[dm_mod]
+ffffffffa0004ec0 T dm_consume_args	[dm_mod]
+ffffffffa0007f50 t dm_copy_name_and_uuid	[dm_mod]
+ffffffffa00005f0 t dm_request_based	[dm_mod]
+
+
+
+
+mono kernel
+call the kernel like call the thread in user process
+adv:kernel page is always mapped to process
+disadvantage: 
+more efficient, far less secure, far less stable
+!!main drawback: if entire kernel crash, all processes affected -> reboot
+
+
+micro kernel
+disadv: inefficient, kernel is a not in process space
+context switch is high cost when calls kernel method from user processes (need to change page table)
+adv: in millitary system. each components are seperated programs, more secury and stable
+
+
+
+32bit
+top 1g for kernel
+
+64bit
+top 128t for kernel
+ffffffff81000000
+
+
+# cat /proc/$$/maps
+00400000-004d5000 r-xp 00000000 fd:01 405                                /bin/bash
+006d4000-006dd000 rw-p 000d4000 fd:01 405                                /bin/bash
+006dd000-006e3000 rw-p 00000000 00:00 0 
+008dc000-008e5000 rw-p 000dc000 fd:01 405                                /bin/bash
+0279a000-027dc000 rw-p 00000000 00:00 0                                  [heap]
+3e7c600000-3e7c620000 r-xp 00000000 fd:01 271148                         /lib64/ld-2.12.so
+3e7c81f000-3e7c820000 r--p 0001f000 fd:01 271148                         /lib64/ld-2.12.so
+3e7c820000-3e7c821000 rw-p 00020000 fd:01 271148                         /lib64/ld-2.12.so
+3e7c821000-3e7c822000 rw-p 00000000 00:00 0 
+3e7ca00000-3e7cb8a000 r-xp 00000000 fd:01 271283                         /lib64/libc-2.12.so
+3e7cb8a000-3e7cd8a000 ---p 0018a000 fd:01 271283                         /lib64/libc-2.12.so
+3e7cd8a000-3e7cd8e000 r--p 0018a000 fd:01 271283                         /lib64/libc-2.12.so
+3e7cd8e000-3e7cd90000 rw-p 0018e000 fd:01 271283                         /lib64/libc-2.12.so
+3e7cd90000-3e7cd94000 rw-p 00000000 00:00 0 
+3e7d200000-3e7d202000 r-xp 00000000 fd:01 271313                         /lib64/libdl-2.12.so
+3e7d202000-3e7d402000 ---p 00002000 fd:01 271313                         /lib64/libdl-2.12.so
+3e7d402000-3e7d403000 r--p 00002000 fd:01 271313                         /lib64/libdl-2.12.so
+3e7d403000-3e7d404000 rw-p 00003000 fd:01 271313                         /lib64/libdl-2.12.so
+3e7e600000-3e7e61d000 r-xp 00000000 fd:01 263913                         /lib64/libtinfo.so.5.7
+3e7e61d000-3e7e81c000 ---p 0001d000 fd:01 263913                         /lib64/libtinfo.so.5.7
+3e7e81c000-3e7e820000 rw-p 0001c000 fd:01 263913                         /lib64/libtinfo.so.5.7
+3e7e820000-3e7e821000 rw-p 00000000 00:00 0 
+7fae83fdc000-7fae89e6f000 r--p 00000000 fd:01 263525                     /usr/lib/locale/locale-archive
+7fae89e6f000-7fae89e7c000 r-xp 00000000 fd:01 263552                     /lib64/libnss_files-2.12.so
+7fae89e7c000-7fae8a07b000 ---p 0000d000 fd:01 263552                     /lib64/libnss_files-2.12.so
+7fae8a07b000-7fae8a07c000 r--p 0000c000 fd:01 263552                     /lib64/libnss_files-2.12.so
+7fae8a07c000-7fae8a07d000 rw-p 0000d000 fd:01 263552                     /lib64/libnss_files-2.12.so
+7fae8a07d000-7fae8a080000 rw-p 00000000 00:00 0 
+7fae8a084000-7fae8a086000 rw-p 00000000 00:00 0 
+7fae8a086000-7fae8a08d000 r--s 00000000 fd:01 392176                     /usr/lib64/gconv/gconv-modules.c
+7fae8a08d000-7fae8a08e000 rw-p 00000000 00:00 0 
+7ffc3c1d7000-7ffc3c1ec000 rw-p 00000000 00:00 0                          [stack]
+7ffc3c1f7000-7ffc3c1f8000 r-xp 00000000 00:00 0                          [vdso]
+ffffffffff600000-ffffffffff601000 r-xp 00000000 00:00 0                  [vsyscall]
+[root@mark9hwxmaster0 ~]# 
+
+
+
+
+
+address for process
+32bit
+1g of 4g is reserved, 3GB
+64bit
+use 47bit, 2^47, 128TB
+
+
+Kernel
+#a program, booted from BIOS/UEFS
+#compressed, expanded in mem
+/boot/vmlinuz-2.6.32-642.6.1.el6.x86_64
+
+# file /boot/vmlinuz-2.6.32-642.6.1.el6.x86_64 
+/boot/vmlinuz-2.6.32-642.6.1.el6.x86_64: Linux kernel x86 boot executable bzImage, version 2.6.32-642.6.1.el6.x86_64 (mock, RO-rootFS, swap_dev 0x4, Normal VGA
+
+
+
+
+
+character, block devices
+/dev
+crw-rw-rw- 1 root tty       5,   0 Mar 19 02:44 tty
+brw-rw---- 1 root disk      8,  16 Feb 24 14:25 sdb
