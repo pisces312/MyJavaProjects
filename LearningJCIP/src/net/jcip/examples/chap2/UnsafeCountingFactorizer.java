@@ -1,4 +1,4 @@
-package net.jcip.examples;
+package net.jcip.examples.chap2;
 
 import java.math.BigInteger;
 import javax.servlet.*;
@@ -14,6 +14,7 @@ import net.jcip.annotations.*;
  */
 @NotThreadSafe
 public class UnsafeCountingFactorizer extends GenericServlet implements Servlet {
+    //XXX
     private long count = 0;
 
     public long getCount() {
@@ -23,6 +24,7 @@ public class UnsafeCountingFactorizer extends GenericServlet implements Servlet 
     public void service(ServletRequest req, ServletResponse resp) {
         BigInteger i = extractFromRequest(req);
         BigInteger[] factors = factor(i);
+        //Lost updates
         ++count;
         encodeIntoResponse(resp, factors);
     }

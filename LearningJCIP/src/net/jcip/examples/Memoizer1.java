@@ -31,10 +31,6 @@ public class Memoizer1 <A, V> implements Computable<A, V> {
 }
 
 
-interface Computable <A, V> {
-    V compute(A arg) throws InterruptedException;
-}
-
 class ExpensiveFunction
         implements Computable<String, BigInteger> {
     public BigInteger compute(String arg) {

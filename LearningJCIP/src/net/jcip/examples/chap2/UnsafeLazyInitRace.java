@@ -1,4 +1,4 @@
-package net.jcip.examples;
+package net.jcip.examples.chap2;
 
 import net.jcip.annotations.*;
 
@@ -11,7 +11,7 @@ import net.jcip.annotations.*;
  */
 
 @NotThreadSafe
-public class LazyInitRace {
+public class UnsafeLazyInitRace {
     private ExpensiveObject instance = null;
 
     public ExpensiveObject getInstance() {

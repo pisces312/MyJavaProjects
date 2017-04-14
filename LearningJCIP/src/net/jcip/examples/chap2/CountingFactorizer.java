@@ -1,4 +1,4 @@
-package net.jcip.examples;
+package net.jcip.examples.chap2;
 
 import java.math.BigInteger;
 import java.util.concurrent.atomic.*;
@@ -15,6 +15,7 @@ import net.jcip.annotations.*;
  */
 @ThreadSafe
 public class CountingFactorizer extends GenericServlet implements Servlet {
+    //!Use AtomicLong
     private final AtomicLong count = new AtomicLong(0);
 
     public long getCount() { return count.get(); }
@@ -22,7 +23,7 @@ public class CountingFactorizer extends GenericServlet implements Servlet {
     public void service(ServletRequest req, ServletResponse resp) {
         BigInteger i = extractFromRequest(req);
         BigInteger[] factors = factor(i);
-        count.incrementAndGet();
+        long currentCount=count.incrementAndGet();
         encodeIntoResponse(resp, factors);
     }
 

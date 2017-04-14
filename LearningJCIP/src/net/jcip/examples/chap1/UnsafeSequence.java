@@ -1,4 +1,4 @@
-package net.jcip.examples;
+package net.jcip.examples.chap1;
 
 import net.jcip.annotations.*;
 
@@ -7,7 +7,7 @@ import net.jcip.annotations.*;
  *
  * @author Brian Goetz and Tim Peierls
  */
-
+//race condition issue
 @NotThreadSafe
 public class UnsafeSequence {
     private int value;

@@ -1,4 +1,4 @@
-package net.jcip.examples;
+package net.jcip.examples.chap2;
 
 import java.math.BigInteger;
 import javax.servlet.*;
@@ -17,6 +17,7 @@ public class StatelessFactorizer extends GenericServlet implements Servlet {
 
     public void service(ServletRequest req, ServletResponse resp) {
         BigInteger i = extractFromRequest(req);
+        //!Calculate every time in function
         BigInteger[] factors = factor(i);
         encodeIntoResponse(resp, factors);
     }

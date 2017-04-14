@@ -71,6 +71,7 @@ public class ProducerConsumer {
 
         public void indexFile(File file) {
             // Index the file...
+            System.out.println("indexing "+file.getAbsolutePath());
         };
     }
 
