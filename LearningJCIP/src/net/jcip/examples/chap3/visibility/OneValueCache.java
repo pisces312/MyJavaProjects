@@ -1,4 +1,4 @@
-package net.jcip.examples;
+package net.jcip.examples.chap3.visibility;
 
 import java.math.BigInteger;
 import java.util.*;
@@ -23,6 +23,7 @@ public class OneValueCache {
         lastFactors = Arrays.copyOf(factors, factors.length);
     }
 
+    //Only have get method
     public BigInteger[] getFactors(BigInteger i) {
         if (lastNumber == null || !lastNumber.equals(i))
             return null;

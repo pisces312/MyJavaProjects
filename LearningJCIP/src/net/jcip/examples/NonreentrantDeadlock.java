@@ -8,10 +8,7 @@ package net.jcip.examples;
  * @author Brian Goetz and Tim Peierls
  */
 
-class Widget {
-    public synchronized void doSomething() {
-    }
-}
+
 
 class LoggingWidget extends Widget {
     public synchronized void doSomething() {

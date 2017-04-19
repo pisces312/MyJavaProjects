@@ -1,4 +1,4 @@
-package net.jcip.examples;
+package net.jcip.examples.chap3.visibility;
 
 /**
  * Holder
@@ -13,7 +13,7 @@ public class Holder {
     public Holder(int n) {
         this.n = n;
     }
-
+//In other threads, two "n" may different
     public void assertSanity() {
         if (n != n)
             throw new AssertionError("This statement is false.");

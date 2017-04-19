@@ -1,4 +1,4 @@
-package net.jcip.examples;
+package net.jcip.examples.chap3.visibility;
 
 import net.jcip.annotations.*;
 

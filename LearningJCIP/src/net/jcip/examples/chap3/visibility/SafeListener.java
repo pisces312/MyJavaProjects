@@ -1,4 +1,4 @@
-package net.jcip.examples;
+package net.jcip.examples.chap3.visibility;
 
 /**
  * SafeListener
@@ -10,6 +10,7 @@ package net.jcip.examples;
 public class SafeListener {
     private final EventListener listener;
 
+    //Private ctor
     private SafeListener() {
         listener = new EventListener() {
             public void onEvent(Event e) {
@@ -18,6 +19,7 @@ public class SafeListener {
         };
     }
 
+    //Public static method
     public static SafeListener newInstance(EventSource source) {
         SafeListener safe = new SafeListener();
         source.registerListener(safe.listener);

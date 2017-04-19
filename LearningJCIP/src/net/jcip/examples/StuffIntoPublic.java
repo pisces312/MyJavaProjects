@@ -1,5 +1,7 @@
 package net.jcip.examples;
 
+import net.jcip.examples.chap3.visibility.Holder;
+
 /**
  * StuffIntoPublic
  * <p/>
