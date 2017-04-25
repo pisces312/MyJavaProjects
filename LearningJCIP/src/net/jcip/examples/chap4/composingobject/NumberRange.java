@@ -1,6 +1,8 @@
-package net.jcip.examples;
+package net.jcip.examples.chap4.composingobject;
 
 import java.util.concurrent.atomic.*;
+
+import net.jcip.annotations.NotThreadSafe;
 
 /**
  * NumberRange
@@ -9,7 +11,7 @@ import java.util.concurrent.atomic.*;
  *
  * @author Brian Goetz and Tim Peierls
  */
-
+@NotThreadSafe
 public class NumberRange {
     // INVARIANT: lower <= upper
     private final AtomicInteger lower = new AtomicInteger(0);

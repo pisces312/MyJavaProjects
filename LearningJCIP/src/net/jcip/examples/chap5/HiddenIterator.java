@@ -1,4 +1,4 @@
-package net.jcip.examples;
+package net.jcip.examples.chap5;
 
 import java.util.*;
 
@@ -11,6 +11,7 @@ import net.jcip.annotations.*;
  *
  * @author Brian Goetz and Tim Peierls
  */
+@NotThreadSafe
 public class HiddenIterator {
     @GuardedBy("this") private final Set<Integer> set = new HashSet<Integer>();
 
@@ -22,6 +23,7 @@ public class HiddenIterator {
         set.remove(i);
     }
 
+    //It may add more than 10 items
     public void addTenThings() {
         Random r = new Random();
         for (int i = 0; i < 10; i++)

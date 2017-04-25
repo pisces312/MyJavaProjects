@@ -1,4 +1,4 @@
-package net.jcip.examples;
+package net.jcip.examples.chap4.composingobject;
 
 import java.util.*;
 import java.util.concurrent.*;

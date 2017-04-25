@@ -1,4 +1,4 @@
-package net.jcip.examples;
+package net.jcip.examples.chap4.composingobject.addnewfeature;
 
 import java.util.*;
 
@@ -9,6 +9,8 @@ import net.jcip.annotations.*;
  * <p/>
  * Examples of thread-safe and non-thread-safe implementations of
  * put-if-absent helper methods for List
+ * 
+ * Extend put-if-absent to existing class
  *
  * @author Brian Goetz and Tim Peierls
  */
@@ -16,7 +18,8 @@ import net.jcip.annotations.*;
 @NotThreadSafe
 class BadListHelper <E> {
     public List<E> list = Collections.synchronizedList(new ArrayList<E>());
-
+    //Wrong monitor is used, if anyone calls other function of List, 
+    //it will not synchronize with putIfAbsent
     public synchronized boolean putIfAbsent(E x) {
         boolean absent = !list.contains(x);
         if (absent)
