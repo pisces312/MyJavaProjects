@@ -7,9 +7,11 @@ import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.imageio.ImageIO;
 import javax.swing.JFrame;
 
 public class ColorByteSender {
@@ -20,8 +22,29 @@ public class ColorByteSender {
 //        String path = "src/main/resources/test.txt";
         String path = "C:\\nili\\wallpapers\\简单\\14-120112115F4.jpg";
 
-        generateBitColors(path);
+//        String path = "src/main/resources/lena/2.jpg";
 
+//        send(path);
+        ColorByteUIConfig config = new ColorByteUIConfig(2500,1600,6);
+        config.sendInterval=1500;
+        List<BufferedImage> imgList = generateImgFiles(path, config);
+        ImageViewer viwer = new ImageViewer();
+        viwer.setVisible(true);
+
+        for (BufferedImage img : imgList) {
+            long start = System.currentTimeMillis();
+            viwer.update(img);
+            long cost = System.currentTimeMillis() - start;
+            if (config.sendInterval - cost > 0) {
+                Thread.sleep(config.sendInterval - cost);
+            }
+//            try {
+//                ImageIO.write(img, "png",
+//                    new File("c:\\tmp\\" + System.currentTimeMillis() + ".png"));
+//            } catch (IOException e1) {
+//                e1.printStackTrace();
+//            }
+        }
 
 //        System.out.println(get256Radix(256));
 //        System.out.println(get256Radix(254));
@@ -31,39 +54,90 @@ public class ColorByteSender {
 
     }
 
-    public static void generateBitColors(String path) throws Exception {
+
+
+    public static BufferedImage generateImg(ColorBytePainter painter, Color[] bitColors, int offset,
+        int len, int seq, int total) {
+        BufferedImage img = painter.createEmptyImage();
+        Graphics g = img.getGraphics();
+        painter.paintColorByte(g, bitColors, offset, len);
+        painter.paintFooter(g, seq, total);
+        return img;
+    }
+
+    //without UI
+    public static List<BufferedImage> generateImgFiles(String path, ColorByteConfig config)
+        throws Exception {
+        Color[] bitColors = getBitColors(path);
+        ColorBytePainter painter = new ColorBytePainter(config);
+
+        int bytePerScreen = config.getBytePerScreen();
+        int totalScreen = config.getTotalScreenNum(bitColors.length);
+        System.out.println("Byte/Screen: " + bytePerScreen);
+        System.out.println("Total screen: " + totalScreen);
+
+        List<BufferedImage> images = new ArrayList<>();
+
+        int offset = 0;
+        int seq = 1;
+        for (; offset + bytePerScreen < bitColors.length; offset += bytePerScreen) {
+            BufferedImage img =
+                generateImg(painter, bitColors, offset, bytePerScreen, seq, totalScreen);
+            images.add(img);
+        }
+
+        if (offset < bitColors.length) {
+            BufferedImage img = generateImg(painter, bitColors, offset, bitColors.length - offset,
+                seq, totalScreen);
+            images.add(img);
+        }
+        return images;
+    }
+
+
+    public static void send(String path) throws Exception {
 
 
         Color[] bitColors = getBitColors(path);
 
-        ColorByteConfig config = new ColorByteConfig();
+        ColorByteUIConfig config = new ColorByteUIConfig();
         ColorByteFrame frame = new ColorByteFrame(config);
+
 
         frame.setVisible(true);
 
 
-        try {
-            Thread.sleep(5000);
-//            Thread.sleep(2000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+
 //        state = START_STATE;
-        frame.setReady(true);
+//        frame.setReady(true);
 
         int bytePerScreen = config.getBytePerScreen();
         int totalScreen = config.getTotalScreenNum(bitColors.length);
         System.out.println(bytePerScreen);
         System.out.println("Screen: " + totalScreen);
+
+        try {
+            Thread.sleep(3000);
+//            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+
+
         int i = 0;
         for (; i + bytePerScreen < bitColors.length; i += bytePerScreen) {
-            System.out.println("update");
+//            System.out.println("update");
+            long start = System.currentTimeMillis();
             frame.updateBitColors(bitColors, i, bytePerScreen, totalScreen);
-            Thread.sleep(1000);
+            long cost = System.currentTimeMillis() - start;
+            if (cost < config.sendInterval) {
+                Thread.sleep(config.sendInterval - cost);
+            }
         }
 
         if (i < bitColors.length) {
-            System.out.println("update");
+//            System.out.println("update");
             frame.updateBitColors(bitColors, i, bitColors.length - i, totalScreen);
         }
 
@@ -105,7 +179,7 @@ public class ColorByteSender {
             t /= 256;
             ++c;
         }
-        System.out.println(c);
+//        System.out.println(c);
         //
         t = n;
         for (int i = 0; i < c - 1; ++i) {
@@ -146,90 +220,76 @@ public class ColorByteSender {
     }
 
 
+    public static class ImageViewer extends JFrame {
+        BufferedImage image;
+
+        public ImageViewer() {
+            setExtendedState(getExtendedState() | JFrame.MAXIMIZED_BOTH);
+            setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        }
+
+        @Override
+        public void paint(Graphics g) {
+            if (image == null) {
+                return;
+            }
+            Graphics g2 = getContentPane().getGraphics();
+            g2.drawImage(image, 0, 0, Color.WHITE, null);
+
+        }
+
+        public void update(BufferedImage image) {
+            this.image = image;
+            repaint();
+        }
+    }
+
 
     public static class ColorByteFrame extends JFrame {
         ColorByteCanvas canvas;
-        ColorByteConfig config;
+        ColorByteUIConfig config;
+
+//        private volatile boolean ready = false;
+//
+//        public void setReady(boolean ready) {
+//            this.ready = ready;
+//        }
 
 
-        //layout config
-        int bitStartX = 16;
-        int bitStartY = 61;
-
-        public ColorByteFrame(ColorByteConfig config) {
+        public ColorByteFrame(ColorByteUIConfig config) {
             this.config = config;
-
-//            setLayout(null);
-//            getContentPane().setBounds(0, 0, config.getTotalFrameW(), config.getTotalFrameH());
-
             canvas = new ColorByteCanvas(config);
-//            canvas.setBounds(bitStartX, bitStartY, canvas.getWidth(), canvas.getHeight());
             add(canvas);
-//            add("Center", canvas);
-
-
-//            canvas.setLocation(bitStartX, bitStartY);
-
-//            setBackground(Color.WHITE);
-
-
-//            setLocationByPlatform(false);
-//            setLocationRelativeTo(null);
-//            setBounds(0, 0, config.getTotalFrameW(), config.getTotalFrameH());
-//            setLocation(0, 0);
-
             setExtendedState(getExtendedState() | JFrame.MAXIMIZED_BOTH);
-
             setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
-//            addWindowListener(new WindowAdapter() {
-//                public void windowClosing(WindowEvent we) {
-//                    System.exit(0);
-//                }
-//            });
-
-//            setState(INIT_STATE);
         }
 
         public void updateBitColors(Color[] bitColors, int offset, int len, int totalLen) {
             canvas.setBitColors(bitColors, offset, len, totalLen);
+//            if (ready) {
             canvas.repaint();
-        }
-
-
-
-//        private static final int INIT_STATE = 0;
-//        private static final int START_STATE = 0;
-//        private volatile int state;
-//        public void setState(int state) {
-//            this.state = state;
-//        }
-
-        private void setReady(boolean ready) {
-            canvas.setReady(ready);
+//            }
         }
 
     }
 
     public static class ColorByteCanvas extends Canvas {
-        ColorByteConfig config;
+        ColorByteUIConfig config;
+        ColorBytePainter painter;
 
         BufferedImage imageBuffer;
 
         Color[] bitColorBuffer;
         int bitColorOffset;
         int bitColorLen;
-        int bitColorTotalLen;
+        int totalScreen;
 
         int screenCount = 0;
 
-
-
-        public ColorByteCanvas(ColorByteConfig config) {
+        public ColorByteCanvas(ColorByteUIConfig config) {
             this.config = config;
-            imageBuffer = new BufferedImage(config.totalByteWidth, config.totalByteHeight,
-                BufferedImage.TYPE_INT_RGB);
-
+            painter = new ColorBytePainter(config);
+            imageBuffer = painter.createEmptyImage();
 
         }
 
@@ -237,17 +297,50 @@ public class ColorByteSender {
             this.bitColorBuffer = bitColors;
             this.bitColorOffset = offset;
             this.bitColorLen = len;
-            this.bitColorTotalLen = totalLen;
+            this.totalScreen = totalLen;
             ++this.screenCount;
+        }
+
+        @Override
+        public void paint(Graphics g) {
+            if (bitColorBuffer == null) {
+                return;
+            }
+            Graphics imageG = imageBuffer.getGraphics();
+            painter.paintColorByte(imageG, bitColorBuffer, bitColorOffset, bitColorLen);
+            painter.paintFooter(imageG, screenCount, totalScreen);
+
+            //draw seq/total string
+            imageG.setColor(Color.BLACK);
+            imageG.setFont(config.font);
+            imageG.drawString(screenCount + " / " + totalScreen, 42,
+                config.totalByteHeight + config.fontSize);
+
+            g.drawImage(imageBuffer, 0, 0, Color.WHITE, null);
+        }
+    }
+
+
+    //paint logic
+    static class ColorBytePainter {
+        ColorByteConfig config;
+
+        public ColorBytePainter(ColorByteConfig config) {
+            this.config = config;
+        }
+
+
+        public BufferedImage createEmptyImage() {
+            return new BufferedImage(config.totalByteWidth,
+                config.totalByteHeight + 2 * config.colorByteHeight, BufferedImage.TYPE_INT_RGB);
         }
 
 
         //Relative 
         //paint on image buffer
         //start from 0,0
-        public void paintColorByte(Graphics g) {
-
-
+        public void paintColorByte(Graphics g, Color[] bitColorBuffer, int bitColorOffset,
+            int bitColorLen) {
             int oneBitWidth = config.colorByteWidth;
             int oneBitHeight = config.colorByteHeight;
 
@@ -269,11 +362,7 @@ public class ColorByteSender {
                         flag = true;
                         break;
                     }
-//                    System.out.println(c);
                     g.setColor(bitColorBuffer[c]);
-//                    System.out.println(bitColors[c]);
-//                    System.out
-//                        .println(String.format("%d,%d,%d,%d", x, y, oneBitWidth, oneBitHeight));
                     g.fillRect(x, y, oneBitWidth, oneBitHeight);
                     ++c;
                 }
@@ -281,60 +370,39 @@ public class ColorByteSender {
 
         }
 
-        @Override
-        public void paint(Graphics g) {
+        public void paintFooter(Graphics g, int seq, int total) {
+            paintFooter(g, 0, config.totalByteHeight, seq, total);
+        }
 
-            if (!ready) {
-                return;
-            }
-            //buffer
-            if (bitColorBuffer != null) {
-                Graphics imageG = imageBuffer.getGraphics();
-                paintColorByte(imageG);
-                g.drawImage(imageBuffer, 0, 0, Color.WHITE, null);
-//                            g.drawImage(imageBuffer, bitStartX, bitStartY, Color.WHITE, null);
-            }
-
-            //draw seq string
-            g.setColor(Color.BLACK);
-            int fontSize = 20;
-            g.setFont(new Font("TimesRoman", Font.PLAIN, fontSize));
-            g.drawString(String.valueOf(screenCount), 50, config.totalByteHeight + fontSize);
+        public void paintFooter(Graphics g, final int x, final int y, int seq, int total) {
+            g.setColor(Color.WHITE);
+            g.fillRect(x, y, config.totalByteWidth, 2 * config.colorByteHeight);
 
 
 
             int d = config.colorByteWidth;
             //draw seq color
-            List<Integer> nums = get256Radix(screenCount);
+            List<Integer> nums = get256Radix(seq);
 //            System.out.println("Seq: 0,");
-            System.out.print(nums);
-            for (int i = 0, w = 0; i < nums.size(); ++i, w += d) {
+//            System.out.print(nums);
+            for (int i = 0, w = x; i < nums.size(); ++i, w += d) {
                 Color c = ColorByte.getColor(nums.get(i));
                 g.setColor(c);
-                System.out.println(c);
-                g.fillRect(w, config.totalByteHeight, d, d);
+//                System.out.println(c);
+                g.fillRect(w, y, d, d);
             }
 
             //total screen in next line
-            nums = get256Radix(bitColorTotalLen);
+            nums = get256Radix(total);
 //          System.out.println("Seq: 0,");
-            System.out.print(nums);
+//            System.out.print(nums);
             for (int i = 0, w = 0; i < nums.size(); ++i, w += d) {
                 Color c = ColorByte.getColor(nums.get(i));
                 g.setColor(c);
-                System.out.println(c);
-                g.fillRect(w, config.totalByteHeight + d, d, d);
+//                System.out.println(c);
+                g.fillRect(w, y + d, d, d);
             }
-
         }
-
-        private volatile boolean ready = false;
-
-        public void setReady(boolean ready) {
-            this.ready = ready;
-        }
-
-
     }
 
 

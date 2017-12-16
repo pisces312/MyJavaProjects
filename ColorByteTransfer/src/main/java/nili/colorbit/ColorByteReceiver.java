@@ -17,30 +17,67 @@ import javax.imageio.ImageIO;
 public class ColorByteReceiver implements Callable<byte[]> {
 
     public static void main(String[] args) throws Exception {
+//        save();
+
+
+
+        //SHAWD3134.ASIAPAC.NOM/?bpp=24&PerformanceFlags=0&geometry=2500x1600&domain=asiapac
+        //IE 100% zoom
+        //Taskbar width will affect
+        // remote desktop 2500x1600
+        //total w=2248
+        //total h=1344
+        ColorByteUIConfig config = new ColorByteUIConfig(2500, 1600, 8);
+        config.screeShotX = 21;
+        config.screeShotY = 263;
+//        config.screeShotX = 22;
+//        config.screeShotY = 226;
+        ColorByteReceiver receiver = new ColorByteReceiver(config);
+        receiver.interval = 400;
+
+        byte[] bytes = receiver.getBytes();
+
+
+        String output = "c:\\tmp\\" + System.currentTimeMillis();
+        FileOutputStream fos = new FileOutputStream(new File(output));
+        fos.write(bytes);
+        System.out.println("!!Finished!!");
+    }
+
+    public static void save() throws Exception {
 
         Robot robot = new Robot();
 
-        int x = 0;
+//        int x = 0;
+//        //!! frame title height
+//        int y = 45;
+//        int width = 1000;
+//        int height = 1000;
+
+
+        int x = 22;
         //!! frame title height
-        int y = 45;
-        int width = 1000, height = 1000;
+        int y = 226;
+        int width = 2248;
+        int height = 1344;
         Rectangle screenShotRect = new Rectangle(x, y, width, height);
         BufferedImage image = robot.createScreenCapture(screenShotRect);
         //
         //
         try {
-            ImageIO.write(image, "jpg", new File("c:\\tmp\\" + System.currentTimeMillis()+".jpg"));
+            ImageIO.write(image, "jpg",
+                new File("c:\\tmp\\" + System.currentTimeMillis() + ".jpg"));
         } catch (IOException e1) {
             e1.printStackTrace();
         }
-        
+
 
     }
-    
-    
-    public static void receive()throws Exception {
 
-        ColorByteConfig config = new ColorByteConfig();
+
+    public static void receive() throws Exception {
+
+        ColorByteUIConfig config = new ColorByteUIConfig();
         ColorByteReceiver receiver = new ColorByteReceiver(config);
         receiver.interval = 500;
 
@@ -66,7 +103,7 @@ public class ColorByteReceiver implements Callable<byte[]> {
 
 
 
-    ColorByteConfig config;
+    ColorByteUIConfig config;
 
     Robot robot;
 
@@ -77,15 +114,13 @@ public class ColorByteReceiver implements Callable<byte[]> {
     Rectangle screenShotRect;
 
 
-    public ColorByteReceiver(ColorByteConfig config) throws Exception {
+    public ColorByteReceiver(ColorByteUIConfig config) throws Exception {
         this.config = config;
         robot = new Robot();
-
-        int x = 0;
         //!! frame title height
-        int y = 45;
-        int width = config.frameW, height = config.frameH;
-        screenShotRect = new Rectangle(x, y, width, height);
+
+        screenShotRect =
+            new Rectangle(config.screeShotX, config.screeShotY, config.frameW, config.frameH);
     }
 
 
@@ -196,6 +231,7 @@ public class ColorByteReceiver implements Callable<byte[]> {
             Color color = new Color(c);
             Integer n = ColorByte.getByte(color);
             if (n == null) {
+//                System.out.println(color);
                 if (nums.size() > 0) {
                     isSeqGot = true;
                 }

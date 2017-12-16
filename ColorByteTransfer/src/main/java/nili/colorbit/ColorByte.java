@@ -12,19 +12,19 @@ import java.util.Map;
  */
 public class ColorByte {
 
+    //For sender
     private static final Color[] bitColors = new Color[256];
 
+    //For receiver
     private static final Map<Color, Integer> colorBitMap = new HashMap<>(512);
 
+    private static int colorDelta = 42;
 
     static {
-
-
-        //
         boolean flag = false;
         int c = 0;
         //adjust
-        int d = 42;
+        int d = colorDelta;
         for (int r = 0; r < 256; r += d) {
             if (flag) {
                 break;
@@ -45,7 +45,7 @@ public class ColorByte {
                 }
             }
         }
-        if(c<256) {
+        if (c < 256) {
             System.err.println("less than 256");
             System.exit(1);
         }
@@ -74,8 +74,34 @@ public class ColorByte {
         return bitColors[b];
     }
 
+    public static int getCloest(int n, int mod, int e) {
+        //r<=mod here
+        int r = n % mod;
+        if (mod - r <= e) {//41,83
+            return mod - r + n;
+        }
+        if (r <= e) {//1->1,43->1,85->1
+            return n - r;
+        }
+        return n;
+
+    }
+
     public static Integer getByte(Color c) {
-        return colorBitMap.get(c);
+        int e = 6;
+        // correction
+        int r = getCloest(c.getRed(), colorDelta, e);
+        int g = getCloest(c.getGreen(), colorDelta, e);
+        int b = getCloest(c.getBlue(), colorDelta, e);
+
+        Color newColor = new Color(r, g, b);
+        Integer i = colorBitMap.get(newColor);
+        if (i == null) {
+            System.out.println("--orig color: " + c);
+            System.out.println("--corrected color: " + newColor);
+        }
+        return i;
+
     }
 
     public static void printColors() {
@@ -104,7 +130,29 @@ public class ColorByte {
 
     public static void main(String[] args) {
 //        ColorBit cb = new ColorBit();
-        ColorByte.printColors();
+//        ColorByte.printColors();
+
+
+
+        assert (getCloest(38, 42, 3) == 38);
+        assert (getCloest(39, 42, 3) == 42);
+        assert (getCloest(40, 42, 3) == 42);
+        assert (getCloest(41, 42, 3) == 42);
+        assert (getCloest(42, 42, 3) == 42);
+        assert (getCloest(43, 42, 3) == 42);
+        assert (getCloest(44, 42, 3) == 42);
+        assert (getCloest(45, 42, 3) == 42);
+        assert (getCloest(46, 42, 3) == 46);
+
+        assert (getCloest(80, 42, 3) == 80);
+        assert (getCloest(81, 42, 3) == 84);
+        assert (getCloest(82, 42, 3) == 84);
+        assert (getCloest(83, 42, 3) == 84);
+        assert (getCloest(84, 42, 3) == 84);
+        assert (getCloest(85, 42, 3) == 84);
+        assert (getCloest(86, 42, 3) == 84);
+        assert (getCloest(87, 42, 3) == 84);
+        assert (getCloest(88, 42, 3) == 88);
 
     }
 

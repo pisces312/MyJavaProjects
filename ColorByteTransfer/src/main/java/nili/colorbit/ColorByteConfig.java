@@ -3,39 +3,20 @@ package nili.colorbit;
 import java.awt.Dimension;
 import java.awt.Toolkit;
 
+/* For Logic */
 public class ColorByteConfig {
 
-//        public int bitStartX = 10;
-//        public int bitStartY = 10;
 
-    //Pixels
-
-    // Border
-//    int topMargin;
-//    int bottomMargin;
-//    int leftMargin;
-//    int rightMargin;
-
-    // For UI
-    int frameW;
-    int frameH;
-
-//    int canvasWidth;
-//    int canvasHeight;
-
-
-    // For Logic
     int totalByteWidth;
     int totalByteHeight;
 
     int colorByteWidth;
     int colorByteHeight;
 
-
-
     //Numbers
     int maxByteX;
     int maxByteY;
+
 
     public ColorByteConfig(int maxW, int maxH, int d) {
         setSize(maxW, maxH, d);
@@ -59,16 +40,16 @@ public class ColorByteConfig {
     public void setSize(int maxW, int maxH, int d) {
         colorByteWidth = colorByteHeight = d;
 
-        frameW = maxW;
-        frameH = maxH;
+//        frameW = maxW;
+//        frameH = maxH;
 
 //        canvasWidth = maxW - 200;
 //        canvasHeight = maxH - 100;
 
 //        leftMargin = rightMargin = topMargin = bottomMargin = 16;
 
-        totalByteWidth = frameW - 250;
-        totalByteHeight = frameH - 250;
+        totalByteWidth = maxW - 250;
+        totalByteHeight = maxH - 140;
 
         maxByteX = totalByteWidth / colorByteWidth;
         maxByteY = totalByteHeight / colorByteHeight;
@@ -83,7 +64,7 @@ public class ColorByteConfig {
         System.out.println(totalByteHeight);
         System.out.println(maxByteX);
         System.out.println(maxByteY);
-        System.out.println("Bytes/Screen: " + getBytePerScreen());
+//        System.out.println("Bytes/Screen: " + getBytePerScreen());
     }
 
 }
